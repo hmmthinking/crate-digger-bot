@@ -60,6 +60,7 @@ client.on('message', message => {
 
     // execute the cmd that is passed in
     try {
+        console.log(client.commands);
         command.execute(message, args);
     }
     catch (error) {

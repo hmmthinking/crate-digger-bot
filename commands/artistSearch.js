@@ -1,33 +1,44 @@
 const Discord = require('discord.js');
 const config = require('../config.json');
 module.exports = {
-    name: 'artistSearch',
+    name: 'artistsearch',
     description: 'Returns a list of artists that match a criteria.',
     args: true,
     usage: '<artist>',
     async execute(message, args) {
+        console.log('artistSearch called!');
         const fetch = require('node-fetch');
-        let allargs = args.slice(0).join(' ');
+        const allargs = args.slice(0).join(' ');
 
-        return message.channel.send('This is where artistSearch goes.');
+        searchForArtist(allargs);
 
         function createEmbed(json) {
             const newEmbed = new Discord.MessageEmbed()
-            .setColor('#ffffff');
+            .setColor('#ffffff')
+            .setTitle(`Searching artists for ${allargs}`);
+            //if (json.results.length <= 10) {
+                for (let i = 0; i < json.results.length; i++) {
+                    newEmbed.addField(`'${i}': [${json.results[i].title}](https://www.discogs.com${json.results[i].uri})`);
+                }
+            //}
+
+            return newEmbed;
         }
 
         async function searchForArtist(search) {
             await fetch(`https://api.discogs.com/database/search?q=${search}&type=artist&key=${config.discogsKey}&secret=${config.discogsSecret}`)
-            .then(response => response.Json())
+            .then(response => response.json())
             .then(response => {
                 try {
-                    // creating an embed
+                    const embed = createEmbed(response);
+                    message.channel.send(embed);
+
                 }
                 catch(e) {
                     console.error(e);
                     message.channel.send('No artists found.');
                 }
-            })
+            });
         }
     },
 };
