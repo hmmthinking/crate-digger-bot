@@ -6,7 +6,6 @@ module.exports = {
     args: true,
     usage: '<artist>',
     async execute(message, args) {
-        console.log('artistSearch called!');
         const fetch = require('node-fetch');
         const allargs = args.slice(0).join(' ');
 
@@ -15,12 +14,20 @@ module.exports = {
         function createEmbed(json) {
             const newEmbed = new Discord.MessageEmbed()
             .setColor('#ffffff')
-            .setTitle(`Searching artists for ${allargs}`);
-            //if (json.results.length <= 10) {
+            .setTitle(`Searching Artists for ${allargs}`);
+            if (json.results.length < 10 && json.results.length > 0) {
                 for (let i = 0; i < json.results.length; i++) {
-                    newEmbed.addField(`'${i}': [${json.results[i].title}](https://www.discogs.com${json.results[i].uri})`);
+                    newEmbed.addField(`${i + 1}`, `[${json.results[i].title}](https://www.discogs.com${json.results[i].uri})`, true);
                 }
-            //}
+            }
+            else if (json.results.length > 10) {
+                for (let i = 0; i < 10; i++) {
+                    newEmbed.addField(`${i + 1}`, `[${json.results[i].title}](https://www.discogs.com${json.results[i].uri})`, true);
+                }
+            }
+            else {
+                newEmbed.addField('No Results', 'No Results');
+            }
 
             return newEmbed;
         }
